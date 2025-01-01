@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+  <title>Pixelated Pencil</title>
+  <style type="text/css">
+    .container {
+      background: #f0f0f0;
+      width: 600;
+      height: 600;
+    }
+    canvas {
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <canvas id="canvas" width="600" height="600"></canvas>
+    <canvas id="overcanvas" width="600" height="600"></canvas>
+  </div>
+<script>
+
+var PIXEL_SIZE = 8;
+var canvas = document.getElementById('canvas');
+var context = canvas.getContext('2d');
+var overCanvas = document.getElementById('overcanvas');
+var overContext = overCanvas.getContext('2d');
+var position = null;
+
+function drawPixel(x, y) {
+  context.fillRect(
+    x * PIXEL_SIZE,
+    y * PIXEL_SIZE,
+    PIXEL_SIZE,
+    PIXEL_SIZE
+  );
+}
+
+overCanvas.onmousedown = function(e) {
+  position = {
+    x: Math.floor((e.clientX - overCanvas.offsetLeft) / PIXEL_SIZE),
+    y: Math.floor((e.clientY - overcanvas.offsetTop) / PIXEL_SIZE)
+  };
+  overCanvas.onmousemove = motion;
+}
+
+overCanvas.onmouseup = function() {
+  overCanvas.onmousemove = null;
+  position = null;
+}
+
+function motion(e) {
+  var x = Math.floor((e.clientX - overCanvas.offsetLeft) / PIXEL_SIZE);
+  var y = Math.floor((e.clientY - overCanvas.offsetTop) / PIXEL_SIZE);
+  var w = x - position.x;
+  var h = y - position.y;
+  var cx = Math.floor(position.x + (w / 2));
+  var cy = Math.floor(position.y + (h / 2));
+
+  overContext.clearRect(0, 0, 600, 600);
+  overContext.beginPath();
+
+  overContext.fillStyle = '#ff0000';
+  overContext.fillRect(
+    position.x * PIXEL_SIZE,
+    position.y * PIXEL_SIZE,
+    PIXEL_SIZE,
+    PIXEL_SIZE
+  );
+
+  overContext.fillStyle = '#0000ff';
+  overContext.fillRect(
+    cx * PIXEL_SIZE,
+    cy * PIXEL_SIZE,
+    PIXEL_SIZE,
+    PIXEL_SIZE
+  );
+
+  overContext.fillStyle = '#000000';
+
+  var rx = Math.floor(w / 2);
+  var ry = Math.floor(h / 2);
+  var pixelCount = (rx * Math.PI) + (ry * Math.PI);
+  
+
+  for (var index = 0; index < pixelCount; index++) {
+    var radians = (index / pixelCount) * Math.PI * 2;
+    var xx = cx + Math.round(rx * Math.cos(radians));
+    var yy = cy + Math.round(ry * Math.sin(radians));
+
+    overContext.fillRect(
+      xx * PIXEL_SIZE,
+      yy * PIXEL_SIZE,
+      PIXEL_SIZE,
+      PIXEL_SIZE
+    );
+  }
+
+  overContext.strokeStyle = '#00ff00';
+  overContext.lineWidth = 1;
+  overContext.strokeRect(
+    position.x * PIXEL_SIZE,
+    position.y * PIXEL_SIZE,
+    w * PIXEL_SIZE,
+    h * PIXEL_SIZE
+  );
+
+
+  /*drawPixel(
+    Math.floor((e.clientX - canvas.offsetLeft) / PIXEL_SIZE),
+    Math.floor((e.clientY - canvas.offsetTop) / PIXEL_SIZE)
+  );*/
+}
+
+</script>
+</body>
+</html>
